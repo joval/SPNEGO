@@ -1,0 +1,28 @@
+
+		SPNEGO Http Servlet Filter
+
+	Integrated Windows Authentication in Java
+
+			GNU LGPL
+
+2010-OCT-15: spnego-r7.jar (stable)
+
+- added support for the SOAPAction HTTP header parameter 
+- filters/valves/custom code/etc can now call the authenticator directly 
+- authenticator parameter values can now be specified dynamically 
+
+
+2009-NOV-18: spnego-r5.jar (final candidate)
+
+- custom clients GSSContext/AD timestamp vs sequence field replay bug
+
+
+2009-NOV-15: spnego-r4.jar
+
+- added support for connecting to a protected SOAP Web Service
+
+
+
+2009-OCT-30: spnego-r3.jar
+
+- added support for credential delegation
