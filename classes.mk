@@ -10,4 +10,7 @@ CLASSES=\
 	net.sourceforge.spnego.SpnegoHttpURLConnection	\
 	net.sourceforge.spnego.SpnegoPrincipal	\
 	net.sourceforge.spnego.SpnegoProvider	\
-	net.sourceforge.spnego.SpnegoSOAPConnection
+	net.sourceforge.spnego.SpnegoSOAPConnection	\
+	net.sourceforge.spnego.SpnegoGSSException	\
+	net.sourceforge.spnego.SpnegoUnauthenticatedException	\
+	net.sourceforge.spnego.SpnegoUnsupportedOperationException

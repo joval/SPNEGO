@@ -70,6 +70,24 @@ final class SpnegoFilterConfig { // NOPMD
     
     private static transient SpnegoFilterConfig instance = null;
 
+    /**
+     * true if typed runtime exception have to be thrown and handled behind by the server application.
+     * For example :
+     * <error-page>
+     *  <exception-type>net.sourceforge.spnego.SpnegoGSSException</exception-type>
+     *  <location>/technicalError.jsp</location>
+     * </error-page>
+     * <error-page>
+     *  <exception-type>net.sourceforge.spnego.SpnegoUnsupportedOperationException</exception-type>
+     *  <location>/unsupportedOperationError.jsp</location>
+     * </error-page>
+     * <error-page>
+     *  <exception-type>net.sourceforge.spnego.SpnegoUnauthenticatedException</exception-type>
+     *  <location>/unauthenticatedError.jsp</location>
+     * </error-page>
+     */
+    private transient boolean throwTypedRuntimeException = false;
+
     /** true if Basic auth should be offered. */
     private transient boolean allowBasic = false;
     
@@ -161,6 +179,12 @@ final class SpnegoFilterConfig { // NOPMD
         if (null != config.getInitParameter(Constants.ALLOW_DELEGATION)) {
             this.allowDelegation = 
                 Boolean.parseBoolean(config.getInitParameter(Constants.ALLOW_DELEGATION));
+        }
+
+        // determine if the filter should throw typed runtime exception
+        if (null != config.getInitParameter(Constants.THROW_TYPED_RUNTIME_EXCEPTION)) {
+            this.throwTypedRuntimeException =
+                Boolean.parseBoolean(config.getInitParameter(Constants.THROW_TYPED_RUNTIME_EXCEPTION));
         }
     }
     
@@ -297,7 +321,7 @@ final class SpnegoFilterConfig { // NOPMD
     String getServerLoginModule() {
         return this.serverLoginModule;
     }
-    
+
     /**
      * Returns the instance of the servlet's config parameters.
      * 
@@ -316,6 +340,16 @@ final class SpnegoFilterConfig { // NOPMD
         }
 
         return SpnegoFilterConfig.instance;
+    }
+
+
+    /**
+     * Returns true if typed runtime exceptions have to be thrown.
+     *
+     * @return true if typed runtime exceptions have to be thrown
+     */
+    boolean isTypedRuntimeExceptionThrown() {
+        return this.throwTypedRuntimeException;
     }
 
     /**
