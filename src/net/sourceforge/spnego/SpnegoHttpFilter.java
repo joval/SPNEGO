@@ -186,6 +186,7 @@ public final class SpnegoHttpFilter implements Filter {
     /** Object for performing Basic and SPNEGO authentication. */
     private transient SpnegoAuthenticator authenticator = null;
 
+    @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
 
         try {
@@ -220,6 +221,12 @@ public final class SpnegoHttpFilter implements Filter {
         , final FilterChain chain) throws IOException, ServletException {
 
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
+        if (httpRequest.getUserPrincipal() instanceof SpnegoPrincipal) {
+            // Authentication is already performed
+            chain.doFilter(httpRequest, response);
+            return;
+        }
+
         final SpnegoHttpServletResponse spnegoResponse = new SpnegoHttpServletResponse(
                 (HttpServletResponse) response);
 
@@ -230,7 +237,15 @@ public final class SpnegoHttpFilter implements Filter {
         } catch (GSSException gsse) {
             LOGGER.severe("HTTP Authorization Header="
                 + httpRequest.getHeader(Constants.AUTHZ_HEADER));
+            if (this.authenticator.isTypedRuntimeExceptionThrown()) {
+                throw new SpnegoGSSException(gsse);
+            }
             throw new ServletException(gsse);
+        } catch (RuntimeException re) {
+          if (this.authenticator.isTypedRuntimeExceptionThrown()) {
+            throw new SpnegoUnsupportedOperationException(re);
+          }
+          throw re;
         }
 
         // context/auth loop not yet complete
@@ -241,6 +256,9 @@ public final class SpnegoHttpFilter implements Filter {
         // assert
         if (null == principal) {
             LOGGER.severe("Principal was null.");
+            if (this.authenticator.isTypedRuntimeExceptionThrown()) {
+                throw new SpnegoUnauthenticatedException("Principal was null.");
+            }
             spnegoResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, true);
             return;
         }
@@ -265,6 +283,17 @@ public final class SpnegoHttpFilter implements Filter {
         private Constants() {
             // default private
         }
+
+        /**
+         * Servlet init param name in web.xml <b>spnego.throw.typedRuntimeException</b>.
+         *
+         * <p>Set this value to <code>true</code> in web.xml if the filter
+         * should throw typed runtime exception instead of ServletException.</p>
+         *
+         * <p>If exception have to be handled in the server application it
+         * is recommended to set this parameter to <code>true</code>.</p>
+         */
+        public static final String THROW_TYPED_RUNTIME_EXCEPTION = "spnego.throw.typedRuntimeException";
         
         /** 
          * Servlet init param name in web.xml <b>spnego.allow.basic</b>.
